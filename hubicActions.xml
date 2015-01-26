@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registry_contributions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.ajaxplorer/ajxp_registry.xsd">
+	<actions>
+		<action name="token">
+			<rightsContext noUser="true" userLogged="only" read="true"
+				write="false" adminOnly="false">
+			</rightsContext>
+			<processing>
+				<serverCallback methodName="tokenAction" restParams="/token+" preferredHttp="GET" sdkMethodName="registerToken" checkParams="true" developerComment="Register Token Action !">
+                    <input_param description="State Description" name="state" type="string" mandatory="false"/>
+                    <input_param description="Scope Description" name="scope" type="string" mandatory="false"/>
+                    <input_param description="Code Description" name="code" type="string" mandatory="false"/>
+                    <input_param description="Wrapper" name="return" type="string" mandatory="false"/>
+                    <input_param description="Error Code" name="error" type="string" mandatory="false"/>
+                    <input_param description="Error Description" name="error_description" type="string" mandatory="false"/>
+                    <output type="AJXP_NODE[]"/>
+				</serverCallback>
+			</processing>
+		</action>
+	</actions>
+</registry_contributions>

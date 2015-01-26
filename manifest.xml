@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ajxpdriver name="hubic" label="CONF_MESSAGE[HubiC]" description="CONF_MESSAGE[This plugin allows accessing a hubiC account. Still experimental.]" mixins="filesystem_commons,slug_provider,template_provider"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.ajaxplorer/ajxp_registry.xsd">
+	<plugin_info>
+		<plugin_author>Cyril AKNINE (AKA DaryL)</plugin_author>
+	</plugin_info>
+	<client_settings icon="plugins/access.hubic/hubicLogo.png">
+        <resources>
+            <i18n namespace="access_hubic" path="plugins/access.hubic/i18n"/>
+        </resources>
+    </client_settings>
+	<server_settings>
+		<param name="CLIENT_ID" type="string" label="CONF_MESSAGE[Client ID]" description="CONF_MESSAGE[ID]" mandatory="true"/>
+		<param name="CLIENT_SECRET" type="string" label="CONF_MESSAGE[Client Secret]" description="CONF_MESSAGE[Secret]" mandatory="true"/>
+	</server_settings>
+	<class_definition filename="plugins/access.hubic/class.hubicAccessDriver.php" classname="hubicAccessDriver"/>
+	<registry_contributions>
+		<external_file filename="plugins/access.hubic/hubicActions.xml" include="actions/*" exclude=""/>
+		<external_file filename="plugins/access.fs/fsActions.xml" include="actions/*"/>
+        <external_file filename="plugins/access.fs/fsTemplatePart.xml" include="client_configs/*" exclude=""/>
+		<external_file filename="plugins/access.fs/fsActions.xml" include="client_configs/*"/>
+		<external_file filename="plugins/access.fs/manifest.xml" include="client_configs/*"/>
+        <external_file filename="plugins/access.fs/manifest.xml" include="registry_contributions/hooks/*" exclude=""/>
+	</registry_contributions>
+	<dependencies>
+		<pluginClass pluginName="access.fs"/>
+		<pluginClass pluginName="access.remote_fs"/>
+	</dependencies>
+    <class_stream_wrapper filename="plugins/access.hubic/class.hubicAccessWrapper.php" classname="hubicAccessWrapper" protocol="ajxp.hubic"/>
+</ajxpdriver>
