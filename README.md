@@ -3,8 +3,11 @@ hubiC access plugin for Pydio (formerly AjaXplorer)
 
 The HubiC plugin is highly experimental. It shall be used to access a hubiC account via their Auth API + Swift.
 
+Inspired by access.dropbox and access.swift plugins by @cdujeu . 
 
 ## How to get it work
+I assume that you already have Pydio installed.
+
 To use it, you must first <a href="https://hubic.com" target="_blank">register an HubiC account</a> You can use my recommending key : `SXEXHU` to get additional space for free.
 
 Then, go to the <a href="https://hubic.com/home/browser/developers/" target="_blank">developers settings page</a> and add an application.
