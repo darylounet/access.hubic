@@ -222,11 +222,11 @@ class hubicAccessDriver extends fsAccessDriver
                 'grant_type' => 'authorization_code'
             ));
         } else {
-            if (empty($vars->refresh_token)) {
+            if (empty($vars['refresh_token'])) {
                 throw new Exception('Unknown Refresh Token');
             }
             curl_setopt($curl, CURLOPT_POSTFIELDS, array(
-                'refresh_token' => $vars->refresh_token,
+                'refresh_token' => $vars['refresh_token'],
                 'grant_type' => 'refresh_token'
             ));
         }
