@@ -22,6 +22,7 @@
 defined('AJXP_EXEC') or die( 'Access not allowed');
 
 require_once(AJXP_INSTALL_PATH .'/plugins/access.fs/class.fsAccessWrapper.php');
+require_once(AJXP_INSTALL_PATH .'/plugins/access.hubic/HubicBootStrap.php');
 
 /**
  * AJXP_Plugin to access a HubiC account

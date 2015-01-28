@@ -20,7 +20,6 @@
  *
  */
 defined('AJXP_EXEC') or die('Access not allowed');
-use \OpenStack\Bootstrap;
 
 /**
  * AJXP_Plugin to access hubiC servers
@@ -145,10 +144,11 @@ class hubicAccessDriver extends fsAccessDriver
             }
         }
         require_once($autoload);
+        require_once($this->getBaseDir() .'/HubicBootStrap.php');
 
-        Bootstrap::useStreamWrappers();
+        \OpenStack\HubicBootstrap::useStreamWrappers();
 
-        Bootstrap::setConfiguration(array(
+        \OpenStack\HubicBootstrap::setConfiguration(array(
             'token' => $this->getAccountProperties('account/credentials')->token,
             'swift_endpoint' => $this->getAccountProperties('account/credentials')->endpoint,
         ));
@@ -192,7 +192,7 @@ class hubicAccessDriver extends fsAccessDriver
 
     public function setTokens($oauthTokens)
     {
-        $_SESSION['OAUTH_HUBIC_TOKENS'] = $oauthTokens;
+        $_SESSION['OAUTH_HUBIC_TOKENS'] = array_merge($_SESSION['OAUTH_HUBIC_TOKENS'], $oauthTokens);
         if (AuthService::usersEnabled()) {
             $userId = AuthService::getLoggedUser()->getId();
         } else {
@@ -222,14 +222,15 @@ class hubicAccessDriver extends fsAccessDriver
                 'grant_type' => 'authorization_code'
             ));
         } else {
-            if (empty($vars['refresh_token'])) {
+            if (empty($_SESSION['OAUTH_HUBIC_TOKENS']['refresh_token'])) {
                 throw new Exception('Unknown Refresh Token');
             }
             curl_setopt($curl, CURLOPT_POSTFIELDS, array(
-                'refresh_token' => $vars['refresh_token'],
+                'refresh_token' => $_SESSION['OAUTH_HUBIC_TOKENS']['refresh_token'],
                 'grant_type' => 'refresh_token'
             ));
         }
+        //Header not accepted by hubiC. Bad documentation guys !
 //        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
         curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($curl, CURLOPT_TIMEOUT, 40);
@@ -330,7 +331,10 @@ class hubicAccessDriver extends fsAccessDriver
         if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
             $protocol = 'https';
         }
-        if (!empty($_SERVER['SERVER_PORT']) && !in_array($_SERVER['SERVER_PORT'], array('80', '443'))) {
+        if (!empty($_SERVER['SERVER_PORT'])
+            && (($protocol === 'http' && $_SERVER['SERVER_PORT'] != '80')
+            || ($protocol === 'https' && $_SERVER['SERVER_PORT'] != '443'))
+            && strpos($_SERVER['HTTP_HOST'], ':'. $_SERVER['SERVER_PORT']) === false) {
             $port = ':'. $_SERVER['SERVER_PORT'];
         }
 
