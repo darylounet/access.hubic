@@ -22,6 +22,7 @@
         <external_file filename="plugins/access.fs/manifest.xml" include="registry_contributions/hooks/*" exclude=""/>
 	</registry_contributions>
 	<dependencies>
+		<pluginClass pluginName="access.swift"/>
 		<pluginClass pluginName="access.fs"/>
 		<pluginClass pluginName="access.remote_fs"/>
 	</dependencies>

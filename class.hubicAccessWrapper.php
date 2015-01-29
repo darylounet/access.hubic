@@ -16,12 +16,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
  *
- * The latest code can be found at <http://pyd.io/>.
+ * The latest code can be found at <https://github.com/darylounet/access.hubic/>.
  *
  */
 defined('AJXP_EXEC') or die( 'Access not allowed');
 
-require_once(AJXP_INSTALL_PATH .'/plugins/access.fs/class.fsAccessWrapper.php');
+require_once(AJXP_INSTALL_PATH .'/plugins/access.swift/class.swiftAccessWrapper.php');
 require_once(AJXP_INSTALL_PATH .'/plugins/access.hubic/HubicBootStrap.php');
 
 /**
@@ -29,7 +29,7 @@ require_once(AJXP_INSTALL_PATH .'/plugins/access.hubic/HubicBootStrap.php');
  * @package AjaXplorer_Plugins
  * @subpackage Access
  */
-class hubicAccessWrapper extends fsAccessWrapper
+class hubicAccessWrapper extends swiftAccessWrapper
 {
     public static $lastException;
     private static $cloudContext;

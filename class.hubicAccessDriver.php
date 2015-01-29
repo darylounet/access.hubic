@@ -20,22 +20,15 @@
  *
  */
 defined('AJXP_EXEC') or die('Access not allowed');
+require_once(AJXP_INSTALL_PATH .'/plugins/access.swift/class.swiftAccessDriver.php');
 
 /**
  * AJXP_Plugin to access hubiC servers
  * @package AjaXplorer_Plugins
  * @subpackage Access
  */
-class hubicAccessDriver extends fsAccessDriver
+class hubicAccessDriver extends swiftAccessDriver
 {
-    /**
-    * @var Repository
-    */
-    public $repository;
-    public $driverConf;
-    protected $wrapperClassName;
-    protected $urlBase;
-
     protected $hubicRegisterUri = 'https://api.hubic.com/oauth/auth/';
     protected $hubicCallbackUri = 'https://api.hubic.com/oauth/token/';
     protected $hubicApiUri      = 'https://api.hubic.com/1.0/';
@@ -339,49 +332,5 @@ class hubicAccessDriver extends fsAccessDriver
         }
 
         return $protocol .'://'. $_SERVER['HTTP_HOST'] . $port .'/';
-    }
-
-    /**
-     * Parse
-     * @param DOMNode $contribNode
-     */
-    protected function parseSpecificContributions(&$contribNode)
-    {
-        parent::parseSpecificContributions($contribNode);
-        if ($contribNode->nodeName !== 'actions') {
-            return ;
-        }
-        $this->disableArchiveBrowsingContributions($contribNode);
-    }
-
-    public function isWriteable($dir, $type = 'dir')
-    {
-        return true;
-    }
-
-    public function loadNodeInfo(AJXP_Node &$node, $parentNode = false, $details = false)
-    {
-        parent::loadNodeInfo($node, $parentNode, $details);
-        if (!$node->isLeaf()) {
-            $node->setLabel(rtrim($node->getLabel(), '/'));
-        }
-    }
-
-    public function filesystemFileSize($filePath)
-    {
-        $bytesize = filesize($filePath);
-        return $bytesize;
-    }
-
-    public function isRemote()
-    {
-        return true;
-    }
-
-    public function makeSharedRepositoryOptions($httpVars, $repository)
-    {
-        $newOptions = parent::makeSharedRepositoryOptions($httpVars, $repository);
-        $newOptions['CONTAINER'] = $this->repository->getOption('CONTAINER');
-        return $newOptions;
     }
 }
