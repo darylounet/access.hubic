@@ -321,12 +321,14 @@ class hubicAccessDriver extends swiftAccessDriver
     {
         $protocol = 'http';
         $port = '';
-        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')) {
             $protocol = 'https';
         }
         if (!empty($_SERVER['SERVER_PORT'])
             && (($protocol === 'http' && $_SERVER['SERVER_PORT'] != '80')
             || ($protocol === 'https' && $_SERVER['SERVER_PORT'] != '443'))
+            && empty($_SERVER['HTTP_X_FORWARDED_PROTO']) //no way to find port behind reverse proxy
             && strpos($_SERVER['HTTP_HOST'], ':'. $_SERVER['SERVER_PORT']) === false) {
             $port = ':'. $_SERVER['SERVER_PORT'];
         }
