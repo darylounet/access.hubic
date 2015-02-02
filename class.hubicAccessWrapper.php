@@ -22,7 +22,7 @@
 defined('AJXP_EXEC') or die( 'Access not allowed');
 
 require_once(AJXP_INSTALL_PATH .'/plugins/access.swift/class.swiftAccessWrapper.php');
-require_once(AJXP_INSTALL_PATH .'/plugins/access.hubic/HubicBootStrap.php');
+require_once(AJXP_INSTALL_PATH .'/plugins/access.hubic/HubicBootstrap.php');
 
 /**
  * AJXP_Plugin to access a HubiC account

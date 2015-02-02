@@ -137,7 +137,7 @@ class hubicAccessDriver extends swiftAccessDriver
             }
         }
         require_once($autoload);
-        require_once($this->getBaseDir() .'/HubicBootStrap.php');
+        require_once($this->getBaseDir() .'/HubicBootstrap.php');
 
         \OpenStack\HubicBootstrap::useStreamWrappers();
 
