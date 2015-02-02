@@ -1,13 +1,7 @@
 <?php
 namespace OpenStack\ObjectStore\v1\Resource;
 
-require_once(dirname(__FILE__) .'/openstack-sdk-php/src/OpenStack/ObjectStore/v1/Resource/StreamWrapper.php');
-require_once(dirname(__FILE__) .'/openstack-sdk-php/src/OpenStack/ObjectStore/v1/Resource/StreamWrapperFS.php');
-
-use \OpenStack\Bootstrap;
-use OpenStack\Common\Transport\Exception\ResourceNotFoundException;
-use \OpenStack\ObjectStore\v1\ObjectStorage;
-use OpenStack\Common\Exception;
+require_once(dirname(__FILE__) .'/openstack-sdk-php/vendor/autoload.php');
 
 class HubicStreamWrapperFS extends StreamWrapperFS
 {
@@ -49,5 +43,59 @@ class HubicStreamWrapperFS extends StreamWrapperFS
 
         }
         $this->isDirty = false;
+    }
+
+    protected function initializeObjectStorage()
+    {
+        $token = $this->cxt('token', $_SESSION['PROP_HUBIC_account/credentials']['token']);
+        $endpoint = $this->cxt('swift_endpoint', $_SESSION['PROP_HUBIC_account/credentials']['endpoint']);
+        $client = $this->cxt('transport_client', \OpenStack\Common\Transport\Guzzle\GuzzleAdapter::create());
+
+        if (!empty($token) && !empty($endpoint)) {
+            $this->store = new \OpenStack\ObjectStore\v1\ObjectStorage($token, $endpoint, $client);
+        } else {
+            throw new \OpenStack\Common\Exception('Missing Token or Endpoint.');
+        }
+
+        return !empty($this->store);
+    }
+
+    public function url_stat($path, $flags)
+    {
+        $url = $this->parseUrl($path);
+        try {
+            $this->initializeObjectStorage();
+            $container = $this->store->container($url['host']);
+            $object = $container->objectsWithPrefix($url['path'], '/', 1)[0];
+            if ($object === null) {
+                return false;
+            }
+            if ($object->contentType() === 'application/directory') {
+                return $this->fakeStat(true, $object);
+            }
+            $stat = parent::url_stat($path, $flags);
+
+            // If the file stat setup returned anything return it.
+            if ($stat) {
+                return $stat;
+            }
+
+            return false;
+        } catch (\OpenStack\Common\Exception $e) {
+            return false;
+        }
+    }
+
+    protected function fakeStat($dir = false, Object $object = null)
+    {
+        $stat = parent::fakeStat($dir);
+
+        if ($object !== null) {
+            $stat['atime'] = $object->lastModified();
+            $stat['mtime'] = $object->lastModified();
+            $stat['ctime'] = $object->lastModified();
+        }
+
+        return $stat;
     }
 }

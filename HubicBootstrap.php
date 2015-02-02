@@ -1,7 +1,7 @@
 <?php
 namespace OpenStack;
 
-require_once(dirname(__FILE__) .'/openstack-sdk-php/src/OpenStack/Bootstrap.php');
+require_once(dirname(__FILE__) .'/openstack-sdk-php/vendor/autoload.php');
 require_once(dirname(__FILE__) .'/HubicStreamWrapperFS.php');
 
 use OpenStack\ObjectStore\v1\Resource\StreamWrapper;

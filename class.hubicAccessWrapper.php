@@ -87,80 +87,6 @@ class hubicAccessWrapper extends swiftAccessWrapper
     }
 
     /**
-     * Stats the given path.
-     * Fix PEAR by adding S_ISREG mask when file case.
-     *
-     * @param unknown_type $path
-     * @param unknown_type $flags
-     * @return unknown
-     */
-    public function url_stat($path, $flags)
-    {
-        // File and zip case
-        // AJXP_Logger::debug(__CLASS__,__FUNCTION__,"Stating $path");
-
-        $url = parse_url($path);
-        if(empty($url["path"])){
-            // This is root, return fake stat;
-            return $this->fakeStat(true);
-        }
-        //$handle = fopen($this->initPath($path, "file"), "r", null, self::$cloudContext);
-        $p = $this->initPath($path, "file");
-        $stat = @stat($p);
-        //fclose($handle);
-        if($stat == null || $stat === false) return null;
-        if ($stat["mode"] == 0666) {
-            $stat[2] = $stat["mode"] |= 0100000; // S_ISREG
-        }
-        $parsed = parse_url($path);
-        if ($stat["mtime"] == $stat["ctime"]  && $stat["ctime"] == $stat["atime"] && $stat["atime"] == 0 && $parsed["path"] != "/") {
-            //AJXP_Logger::debug(__CLASS__,__FUNCTION__,"Nullifying stats");
-            return null;
-        }
-        return $stat;
-
-        // Non existing file
-           return null;
-    }
-
-    /**
-     * Fake stat data.
-     *
-     * Under certain conditions we have to return totally trumped-up
-     * stats. This generates those.
-     */
-    protected function fakeStat($dir = false)
-    {
-        $request_time = time();
-
-        // Set inode type to directory or file.
-        $type = $dir ? 040000 : 0100000;
-        // Fake world-readable
-        $mode = $type + 0777;
-
-        $values = array(
-            'dev' => 0,
-            'ino' => 0,
-            'mode' => $mode,
-            'nlink' => 0,
-            'uid' => posix_getuid(),
-            'gid' => posix_getgid(),
-            'rdev' => 0,
-            'size' => 0,
-            'atime' => $request_time,
-            'mtime' => $request_time,
-            'ctime' => $request_time,
-            'blksize' => -1,
-            'blocks' => -1,
-        );
-
-        $final = array_values($values) + $values;
-
-        return $final;
-    }
-
-
-    /**
      * Opens a handle to the dir
      * Fix PEAR by being sure it ends up with "/", to avoid
      * adding the current dir to the children list.
@@ -169,7 +95,7 @@ class hubicAccessWrapper extends swiftAccessWrapper
      * @param unknown_type $options
      * @return unknown
      */
-    public function dir_opendir ($path , $options )
+    public function dir_opendir($path , $options )
     {
         $this->realPath = $this->initPath($path, "dir", true);
         if ($this->realPath[strlen($this->realPath)-1] != "/") {
@@ -177,7 +103,7 @@ class hubicAccessWrapper extends swiftAccessWrapper
         }
         if (is_string($this->realPath)) {
             $this->dH = opendir($this->realPath, self::$cloudContext);
-        } else if ($this->realPath == -1) {
+        } elseif ($this->realPath == -1) {
             $this->dH = -1;
         }
         return $this->dH !== false;
