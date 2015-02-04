@@ -185,17 +185,19 @@ class hubicAccessDriver extends swiftAccessDriver
 
     public function setTokens($oauthTokens)
     {
-        $_SESSION['OAUTH_HUBIC_TOKENS'] = array_merge($_SESSION['OAUTH_HUBIC_TOKENS'], $oauthTokens);
         if (AuthService::usersEnabled()) {
             $userId = AuthService::getLoggedUser()->getId();
         } else {
             $userId = 'shared';
         }
-        AJXP_Utils::saveSerialFile(
-            AJXP_DATA_PATH .'/plugins/access.hubic/'. $this->repository->getId() .'_'. $userId .'_tokens',
-            $oauthTokens,
-            true
-        );
+
+        $tokensCfgFile = AJXP_DATA_PATH .'/plugins/access.hubic/'. $this->repository->getId() .'_'. $userId .'_tokens';
+
+        $oldTokens = AJXP_Utils::loadSerialFile($tokensCfgFile);
+
+        $_SESSION['OAUTH_HUBIC_TOKENS'] = array_merge($oldTokens, $oauthTokens);
+
+        AJXP_Utils::saveSerialFile($tokensCfgFile, $_SESSION['OAUTH_HUBIC_TOKENS'], true);
     }
 
     private function getOAuthToken($vars, $renew = false)
