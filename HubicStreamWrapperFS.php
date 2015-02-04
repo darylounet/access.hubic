@@ -19,28 +19,27 @@ class HubicStreamWrapperFS extends StreamWrapperFS
 
         // Stream is dirty and needs a write.
         if ($this->isDirty) {
-            if ($contentType === null) {
-                // TODO: try to retrieve MIME type directly from $this->objStream and \finfo::buffer
-                if (!empty($_FILES)) {
-                    foreach ($_FILES as $file) {
-                        if ($file['name'] === basename($this->obj->name())) {
-                            // don't trust $file['type'] as it can be spoofed
-                            $finfo = new \finfo(FILEINFO_MIME);
-                            $mime = $finfo->file($file['tmp_name'], FILEINFO_MIME_TYPE);
-                            if ($mime) {
-                                $this->obj->setContentType($mime);
-                            }
-                        }
-                    }
-                }
-            }
             $position = ftell($this->objStream);
-
             rewind($this->objStream);
-            $this->container->save($this->obj, $this->objStream);
 
-            fseek($this->objStream, SEEK_SET, $position);
+            if ($contentType === null) {
+                $finfo = new \finfo(FILEINFO_MIME);
+                if ($mime = $finfo->buffer(stream_get_contents($this->objStream), FILEINFO_MIME_TYPE)) {
+                    $this->obj->setContentType($mime);
+                }
+                rewind($this->objStream);
+            }
 
+            $objStream = tmpfile();
+            stream_copy_to_stream($this->objStream, $objStream);
+
+            $this->container->save($this->obj, $objStream);
+
+            // TODO: bad $this->objStream stream ressource after save() (Guzzle issue I presume), I had to copy
+            // original stream to a temporary one in order to preserve Pydio next treatments
+//            fclose($objStream); // can't close as the stream type is now "Undefined" instead of "stream" !!
+
+            fseek($this->objStream, $position, SEEK_SET);
         }
         $this->isDirty = false;
     }

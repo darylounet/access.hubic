@@ -44,6 +44,11 @@ class hubicAccessWrapper extends swiftAccessWrapper
     protected static function initPath($path, $streamType, $storeOpenContext = false, $skipZip = false)
     {
         $url = parse_url($path);
+
+        if (!in_array('swiftfs', stream_get_wrappers())) {
+            \OpenStack\HubicBootstrap::useStreamWrappers();
+        }
+
         if (self::$cloudContext == null) {
             self::$cloudContext = stream_context_create(
                 array('swiftfs' =>
