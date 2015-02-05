@@ -24,7 +24,7 @@ class HubicStreamWrapperFS extends StreamWrapperFS
 
             if ($contentType === null) {
                 $finfo = new \finfo(FILEINFO_MIME);
-                if ($mime = $finfo->buffer(stream_get_contents($this->objStream), FILEINFO_MIME_TYPE)) {
+                if ($mime = $finfo->buffer(stream_get_contents($this->objStream, 1024), FILEINFO_MIME_TYPE)) {
                     $this->obj->setContentType($mime);
                 }
                 rewind($this->objStream);
