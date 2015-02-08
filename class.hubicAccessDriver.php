@@ -87,6 +87,7 @@ class hubicAccessDriver extends swiftAccessDriver
         if (!empty($_SESSION['OAUTH_HUBIC_TOKENS'])) {
             if ($_SESSION['OAUTH_HUBIC_TOKENS']['expires_in'] <= time()) {
                 $this->getOAuthToken($this->getAccountProperties('account/credentials'), true);
+                $this->getAccountProperties('account/credentials', true);
             }
             return $this->followInitRepository();
         }
@@ -97,6 +98,7 @@ class hubicAccessDriver extends swiftAccessDriver
             $_SESSION['OAUTH_HUBIC_TOKENS'] = $tokens;
             if ($_SESSION['OAUTH_HUBIC_TOKENS']['expires_in'] <= time()) {
                 $this->getOAuthToken($this->getAccountProperties('account/credentials'), true);
+                $this->getAccountProperties('account/credentials', true);
             }
             return $this->followInitRepository();
         }
@@ -142,8 +144,8 @@ class hubicAccessDriver extends swiftAccessDriver
         \OpenStack\HubicBootstrap::useStreamWrappers();
 
         \OpenStack\HubicBootstrap::setConfiguration(array(
-            'token' => $this->getAccountProperties('account/credentials')->token,
-            'swift_endpoint' => $this->getAccountProperties('account/credentials')->endpoint,
+            'token' => $_SESSION['PROP_HUBIC_account/credentials']['token'],
+            'swift_endpoint' => $_SESSION['PROP_HUBIC_account/credentials']['endpoint'],
         ));
 
         $path = $this->repository->getOption('PATH');
@@ -292,10 +294,11 @@ class hubicAccessDriver extends swiftAccessDriver
         );
     }
 
-    public function getAccountProperties($object)
+    public function getAccountProperties($object, $refresh = false)
     {
         if ($_SESSION['PROP_HUBIC_'. $object] !== null
-            && is_array($_SESSION['PROP_HUBIC_'. $object])) {
+            && is_array($_SESSION['PROP_HUBIC_'. $object])
+            && $refresh !== true) {
             return $this->repository->getOption('PROP_HUBIC_'. $object);
         }
         if (AuthService::usersEnabled()) {
@@ -310,7 +313,7 @@ class hubicAccessDriver extends swiftAccessDriver
 
         $fileObject = AJXP_DATA_PATH .'/plugins/access.hubic/'. $this->repository->getId() .'_'.
             $userId .'_'. str_replace('/', '_', $object);
-        if (!file_exists($fileObject)) {
+        if (!file_exists($fileObject) || $refresh === true) {
             $_SESSION['PROP_HUBIC_'. $object] = $this->retrieveAccountProperties($object);
         } else {
             $_SESSION['PROP_HUBIC_'. $object] = AJXP_Utils::loadSerialFile($fileObject);
