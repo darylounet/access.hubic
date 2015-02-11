@@ -168,18 +168,9 @@ class hubicAccessDriver extends swiftAccessDriver
             && is_array($_SESSION['OAUTH_HUBIC_TOKENS'])) {
             return $_SESSION['OAUTH_HUBIC_TOKENS'];
         }
-        if (AuthService::usersEnabled()) {
-            $user = AuthService::getLoggedUser();
-            $userId = $user->getId();
-            if ($user->getResolveAsParent()) {
-                $userId = $user->getParent();
-            }
-        } else {
-            $userId = 'shared';
-        }
 
         $_SESSION['OAUTH_HUBIC_TOKENS'] = AJXP_Utils::loadSerialFile(
-            AJXP_DATA_PATH .'/plugins/access.hubic/'. $this->repository->getId() .'_'. $userId .'_tokens'
+            AJXP_DATA_PATH .'/plugins/access.hubic/'. $this->repository->getId() .'_tokens'
         );
 
         return $_SESSION['OAUTH_HUBIC_TOKENS'];
@@ -187,13 +178,7 @@ class hubicAccessDriver extends swiftAccessDriver
 
     public function setTokens($oauthTokens)
     {
-        if (AuthService::usersEnabled()) {
-            $userId = AuthService::getLoggedUser()->getId();
-        } else {
-            $userId = 'shared';
-        }
-
-        $tokensCfgFile = AJXP_DATA_PATH .'/plugins/access.hubic/'. $this->repository->getId() .'_'. $userId .'_tokens';
+        $tokensCfgFile = AJXP_DATA_PATH .'/plugins/access.hubic/'. $this->repository->getId() .'_tokens';
 
         $oldTokens = AJXP_Utils::loadSerialFile($tokensCfgFile);
 
@@ -281,14 +266,8 @@ class hubicAccessDriver extends swiftAccessDriver
     public function setAccountProperties($properties, $object)
     {
         $_SESSION['PROP_HUBIC_'. $object] = $properties;
-        if (AuthService::usersEnabled()) {
-            $userId = AuthService::getLoggedUser()->getId();
-        } else {
-            $userId = 'shared';
-        }
         AJXP_Utils::saveSerialFile(
-            AJXP_DATA_PATH .'/plugins/access.hubic/'. $this->repository->getId() .'_'.
-            $userId .'_'. str_replace('/', '_', $object),
+            AJXP_DATA_PATH .'/plugins/access.hubic/'. $this->repository->getId() .'_'. str_replace('/', '_', $object),
             $properties,
             true
         );
@@ -301,18 +280,9 @@ class hubicAccessDriver extends swiftAccessDriver
             && $refresh !== true) {
             return $this->repository->getOption('PROP_HUBIC_'. $object);
         }
-        if (AuthService::usersEnabled()) {
-            $user = AuthService::getLoggedUser();
-            $userId = $user->getId();
-            if ($user->getResolveAsParent()) {
-                $userId = $user->getParent();
-            }
-        } else {
-            $userId = 'shared';
-        }
 
         $fileObject = AJXP_DATA_PATH .'/plugins/access.hubic/'. $this->repository->getId() .'_'.
-            $userId .'_'. str_replace('/', '_', $object);
+            str_replace('/', '_', $object);
         if (!file_exists($fileObject) || $refresh === true) {
             $_SESSION['PROP_HUBIC_'. $object] = $this->retrieveAccountProperties($object);
         } else {
