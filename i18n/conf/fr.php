@@ -25,4 +25,7 @@ $mess=array(
 "ID" => "ID",
 "Client Secret" => "Client Secret",
 "Secret" => "Secret",
+"Container" => "Conteneur",
+"Create" => "Créer",
+"Create container if it does not exists" => "Créer le conteneur s'il n'existe pas",
 );

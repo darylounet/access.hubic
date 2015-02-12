@@ -72,6 +72,23 @@ class hubicAccessDriver extends swiftAccessDriver
                 throw new Exception('Internal credential check error');
             }
             $this->getOAuthToken($httpVars, false);
+
+            if ($this->repository->getOption('CREATE') === true) {
+                $this->getAccountProperties('account/credentials', true);
+
+                $token = $_SESSION['PROP_HUBIC_account/credentials']['token'];
+                $endpoint = $_SESSION['PROP_HUBIC_account/credentials']['endpoint'];
+                $client = \OpenStack\Common\Transport\Guzzle\GuzzleAdapter::create();
+
+                if (!empty($token) && !empty($endpoint)) {
+                    $store = new \OpenStack\ObjectStore\v1\ObjectStorage($token, $endpoint, $client);
+                } else {
+                    throw new \OpenStack\Common\Exception('Missing Token or Endpoint.');
+                }
+
+                $store->createContainer($this->repository->getOption('CONTAINER'));
+            }
+
             header('Location: '. $this->siteBaseUrl() .'ws-'. $this->repository->display);
         }
     }
@@ -148,7 +165,7 @@ class hubicAccessDriver extends swiftAccessDriver
             'swift_endpoint' => $_SESSION['PROP_HUBIC_account/credentials']['endpoint'],
         ));
 
-        $path = $this->repository->getOption('PATH');
+//        $path = $this->repository->getOption('PATH');
         $recycle = $this->repository->getOption('RECYCLE_BIN');
         ConfService::setConf('PROBE_REAL_SIZE', false);
         $wrapperData = $this->detectStreamWrapper(true);

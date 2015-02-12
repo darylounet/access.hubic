@@ -45,6 +45,14 @@ class hubicAccessWrapper extends swiftAccessWrapper
     {
         $url = parse_url($path);
 
+        $repoId = $url['host'];
+        $repoObject = ConfService::getRepositoryById($repoId);
+        if (!isset($repoObject)) {
+            $exception = new Exception('Cannot find repository with id '. $repoId);
+            self::$lastException = $exception;
+            throw $exception;
+        }
+
         if (!in_array('swiftfs', stream_get_wrappers())) {
             \OpenStack\HubicBootstrap::useStreamWrappers();
         }
@@ -61,7 +69,7 @@ class hubicAccessWrapper extends swiftAccessWrapper
         }
 
         // Base container on HubiC is "default"
-        return 'swiftfs://default' . str_replace('//', '/', $url['path']);
+        return 'swiftfs://'. $repoObject->getOption('CONTAINER') . str_replace('//', '/', $url['path']);
     }
 
     /**
@@ -79,7 +87,7 @@ class hubicAccessWrapper extends swiftAccessWrapper
         try {
             $this->realPath = $this->initPath($path, "file");
         } catch (Exception $e) {
-            AJXP_Logger::error(__CLASS__,"stream_open", "Error while opening stream $path");
+            AJXP_Logger::error(__CLASS__, 'stream_open', 'Error while opening stream ' .$path);
             return false;
         }
         if ($this->realPath == -1) {

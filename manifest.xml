@@ -11,6 +11,8 @@
 	<server_settings>
 		<param name="CLIENT_ID" type="string" label="CONF_MESSAGE[Client ID]" description="CONF_MESSAGE[ID]" mandatory="true"/>
 		<param name="CLIENT_SECRET" type="string" label="CONF_MESSAGE[Client Secret]" description="CONF_MESSAGE[Secret]" mandatory="true"/>
+		<param name="CONTAINER" type="string" label="CONF_MESSAGE[Container]" description="CONF_MESSAGE[Container]" mandatory="true" default="default"/>
+		<param name="CREATE" type="boolean" label="CONF_MESSAGE[Create]" description="CONF_MESSAGE[Create container if it does not exists]" mandatory="false" default="false"/>
 	</server_settings>
 	<class_definition filename="plugins/access.hubic/class.hubicAccessDriver.php" classname="hubicAccessDriver"/>
 	<registry_contributions>
