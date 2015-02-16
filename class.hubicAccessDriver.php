@@ -73,22 +73,6 @@ class hubicAccessDriver extends swiftAccessDriver
             }
             $this->getOAuthToken($httpVars, false);
 
-            if ($this->repository->getOption('CREATE') === true) {
-                $this->getAccountProperties('account/credentials', true);
-
-                $token = $_SESSION['PROP_HUBIC_account/credentials']['token'];
-                $endpoint = $_SESSION['PROP_HUBIC_account/credentials']['endpoint'];
-                $client = \OpenStack\Common\Transport\Guzzle\GuzzleAdapter::create();
-
-                if (!empty($token) && !empty($endpoint)) {
-                    $store = new \OpenStack\ObjectStore\v1\ObjectStorage($token, $endpoint, $client);
-                } else {
-                    throw new \OpenStack\Common\Exception('Missing Token or Endpoint.');
-                }
-
-                $store->createContainer($this->repository->getOption('CONTAINER'));
-            }
-
             header('Location: '. $this->siteBaseUrl() .'ws-'. $this->repository->display);
         }
     }
@@ -157,6 +141,8 @@ class hubicAccessDriver extends swiftAccessDriver
         }
         require_once($autoload);
         require_once($this->getBaseDir() .'/HubicBootstrap.php');
+
+        $this->createContainer();
 
         \OpenStack\HubicBootstrap::useStreamWrappers();
 
@@ -307,6 +293,28 @@ class hubicAccessDriver extends swiftAccessDriver
         }
 
         return $_SESSION['PROP_HUBIC_'. $object];
+    }
+
+    private function createContainer()
+    {
+        // TODO: cache the result
+        if ($this->repository->getOption('CREATE') === true) {
+            $this->getAccountProperties('account/credentials');
+
+            $token = $_SESSION['PROP_HUBIC_account/credentials']['token'];
+            $endpoint = $_SESSION['PROP_HUBIC_account/credentials']['endpoint'];
+            $client = \OpenStack\Common\Transport\Guzzle\GuzzleAdapter::create();
+
+            if (!empty($token) && !empty($endpoint)) {
+                $store = new \OpenStack\ObjectStore\v1\ObjectStorage($token, $endpoint, $client);
+            } else {
+                throw new \OpenStack\Common\Exception('Missing Token or Endpoint.');
+            }
+
+            if ($store->hasContainer($this->repository->getOption('CONTAINER'))) {
+                $store->createContainer($this->repository->getOption('CONTAINER'));
+            }
+        }
     }
 
     private function siteBaseUrl()
